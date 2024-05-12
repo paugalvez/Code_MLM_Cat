@@ -2,6 +2,8 @@
 
 # Libraries and datasets---------------------------------------------------------------
 
+# Libraries and datasets---------------------------------------------------------------
+
 library(lmerTest)
 library(lme4)
 library(ggplot2)
@@ -13,12 +15,14 @@ library(sjPlot)
 library(rstatix)
 library(broom)
 library(robustlmm)
+library(influence.ME)
+library(HLMdiag)
 
 #These two datasets contain 6011 observations, including those with missing values and imputed values from the ESCA 2017-2022, 
 #merged with datasets on asset-based intersectoral initiatives across geographical areas.
 #These datasets have already merged the initiatives dataset with the Catalan Health Survey, calculated standardized numbers of initiatives per geographic area, and accounted for skewness by converting count data to categorical data.
 ESCA_Finalv3 <- read_excel("C:\\Users\\galve\\OneDrive\\Desktop\\data storage projects\\MLM_PhD_Phase2\\Final_datasets_paper_JAandH\\Dataset_ESCA_HA2017_2022.xlsx")
-ESCA_ActivitiesNAs <-read_excel("C:\\Users\\galve\\OneDrive\\Desktop\\data storage projects\\MLM_PhD_Phase2\\Final_datasets_paper_JAandH\\Dataset_ESCA_HA2017_2022_NAs.xlsx")
+ESCA_NAv2 <-read_excel("C:\\Users\\galve\\OneDrive\\Desktop\\data storage projects\\MLM_PhD_Phase2\\Final_datasets_paper_JAandH\\ESCA_NAv2.xlsx")
 
 # Generation of independent variables  -----------------------------------------
 
@@ -590,6 +594,28 @@ print(tukey_test4)
       qqnorm(resid(FinalM4b_MWmodel))
       qqline(resid(FinalM4b_MWmodel), col = "steelblue") 
       
+      #Diagnostics outliers level 2
+      
+      #M4a_SS
+      
+      cooksd_fm1 <- cooks.distance(FinalM4a_SSmodel, level = "Health_Sector")
+      dotplot_diag(x = cooksd_fm1, cutoff = "internal")
+      
+      #M4b_SS
+      
+      cooksd_fm2 <- cooks.distance(FinalM4b_SSmodel, level = "Health_Sector")
+      dotplot_diag(x = cooksd_fm2, cutoff = "internal")
+      
+      #M4a_MW
+      
+      cooksd_fm3 <- cooks.distance(FinalM4a_MWmodel, level = "Health_Sector")
+      dotplot_diag(x = cooksd_fm3, cutoff = "internal")
+      
+      #M4b_MW
+      
+      cooksd_fm4 <- cooks.distance(FinalMbb_MWmodel, level = "Health_Sector")
+      dotplot_diag(x = cooksd_fm4, cutoff = "internal")
+      
 # Sensitivity analyses --------------------------------------------------
 
     #specificity (selecting outcome chronic conditions) -----------------
@@ -804,6 +830,81 @@ print(tukey_test4)
       predictor_name <- "avail_activities"  
       
       print(one_tailed_p_value)
+
+      
+  #NA vs no NA ----------------------------------------
+      
+    Preparing NAs Dataset
+      
+      #Grand mean centering (Hox2002) predictors
+      
+      ESCA_NAv2$CAge <- (ESCA_NAv2$Age - mean(ESCA_NAv2$Age))
+      ESCA_NAv2$CChronic_conditions <- (ESCA_NAv2$Chronic_conditions - mean(ESCA_NAv2$Chronic_conditions))
+      ESCA_NAv2$CHS_population <- (ESCA_NAv2$HS_population - mean(ESCA_NAv2$HS_population))
+      ESCA_NAv2$CHS_75_living_alone <- (ESCA_NAv2$HS_prop_75_alone - mean(ESCA_NAv2$HS_prop_75_alone))
+      ESCA_NAv2$CHS_proportion_population__65 <- (ESCA_NAv2$HS_prop_65 - mean(ESCA_NAv2$HS_prop_65))
+      ESCA_NAv2$CHousehold_members <- (ESCA_NAv2$Household_members - mean(ESCA_NAv2$Household_members))
+      #Converting categorical variables
+      
+      ESCA_NAv2$Gender <- factor(ESCA_NAv2$Gender, levels = c(1, 2), labels = c("Man", "Woman"))
+      ESCA_NAv2$Interview_wave <- factor(ESCA_NAv2$Interview_wave, levels = c(2017, 2018, 2019, 2020, 2021),
+                                               labels = c("2017", "2018", "2019", "2020", "2021"))
+      ESCA_NAv2$Education <-factor(ESCA_NAv2$Education, levels = c(1, 2, 3), labels = c("Primary or no studies", "Secondary", "University"))
+      ESCA_NAv2$Employment <-factor(ESCA_NAv2$Employment, levels = c(1, 2, 3), labels = c("Active employment", "No active employment", "Domestic work"))
+      ESCA_NAv2$Limitation_daily_activities <- factor(ESCA_NAv2$Limitation_daily_activities, 
+                                                            levels = c(1, 2, 3), labels = c("Severe limitation", "Limitated, but not severe", "No limitation"))
+      ESCA_NAv2$Living_alone <- factor(ESCA_NAv2$Living_alone, levels = c(1, 2), labels = c("Living alone", "Not living alone"))
+      ESCA_NAv2$Nationality <- factor(ESCA_NAv2$Nationality, levels = c(1, 2), labels = c("National", "Non-national"))
+      ESCA_NAv2$Economic_strain <- factor(ESCA_NAv2$Economic_strain, levels = c(0, 1), labels = c("No economic strain", "Economic strain"))
+      ESCA_NAv2$act_quintiles <- factor(ESCA_NAv2$act_quintiles, 
+                                              levels = c(1, 2, 3, 4, 5), labels = c("HSActquintile1", "HSActquintile2","HSActquintile3","HSActquintile4","HSActquintile5" ))
+      ESCA_Activities$Prop_Act_quintiles <- factor(ESCA_Activities$Prop_Act_quintiles, 
+                                                   levels = c(1, 2, 3, 4, 5), labels = c("HSAPropquintile1", "HSPropquintile2","HSPropquintile3","HSPropquintile4","HSPropquintile5" ))
+      ESCA_Activities$Health_Sector <- factor(ESCA_Activities$Health_Sector)
+      
+      unique(ESCA_Activities$Health_Sector)
+      sum(is.na(ESCA_Activities))
+      sum(!complete.cases(ESCA_Activities))
+      
+      
+      #M4a_SS
+      FinalM4a_SSmodel_NA <- lmer(Social_support ~ avail_activities+
+                                    Limitation_daily_activities + CChronic_conditions + 
+                                    CHousehold_members + Economic_strain + Nationality + 
+                                    Interview_wave + (1 | Health_Sector), data = ESCA_NAv2)
+      tab_model(FinalM4a_SSmodel_NA)
+      AIC(FinalM4a_SSmodel_NA)
+      
+      #M4b_SS
+      
+      FinalM4b_SSmodel_NA <- lmer(Social_support ~ uptake + Limitation_daily_activities + 
+                                    CChronic_conditions + CHousehold_members + Economic_strain + 
+                                    Nationality + Interview_wave + (1 | Health_Sector), 
+                                  data = ESCA_NAv2)
+      
+      tab_model(FinalM4b_SSmodel_NA)
+      AIC(FinalM4b_SSmodel_NA)
+      
+      
+      #M4a_MW
+      
+      FinalM4a_MWmodel_NA <- lmer(Mental_well_being ~ avail_activities + Gender +
+                                    CAge + Limitation_daily_activities + CChronic_conditions + 
+                                    Education + Economic_strain + 
+                                    Interview_wave + (1 | Health_Sector), data = ESCA_NAv2)
+      
+      tab_model(FinalM4a_MWmodel_NA)
+      AIC(FinalM4a_MWmodel_NA)
+      
+      #M4b_MW
+      
+      FinalM4b_MWmodel_NA <- lmer(Mental_well_being ~ uptake + Gender + CAge + 
+                                    Limitation_daily_activities + CChronic_conditions + 
+                                    Education + Economic_strain + Interview_wave + 
+                                    (1 | Health_Sector), data = ESCA_NAv2)
+      
+      tab_model(FinalM4b_MWmodel_NA)
+      AIC(FinalM4b_MWmodel_NA)
 
       
   
