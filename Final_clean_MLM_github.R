@@ -2,8 +2,6 @@
 
 # Libraries and datasets---------------------------------------------------------------
 
-# Libraries and datasets---------------------------------------------------------------
-
 library(lmerTest)
 library(lme4)
 library(ggplot2)
@@ -107,7 +105,7 @@ summary_stats_categorical <- lapply(ESCA_Finalv3, function(x) if(is.factor(x)) {
 print(summary_stats_numerical)
 print(summary_stats_categorical)
 
-# Bivariate analysis ----------------------------------------------------
+# Descriptive groups baseline ----------------------------------------------------
 
 #individual-level categorical covariates
 
@@ -145,7 +143,7 @@ for (var in categorical_vars) {         #independent_v2_uptake
   print(summary_data2)
 }
 
-#Chi-square bivariate analysis
+#Chi-square difference within groups analysis
 
 for (var in categorical_vars) {    #independent_v1_avail_activities
   
@@ -266,6 +264,142 @@ anova_result4 <- aov(Mental_well_being ~ uptake, data = ESCA_Finalv3)
 summary(anova_result4)
 tukey_test4 <- TukeyHSD(anova_result4)
 print(tukey_test4)
+
+
+# Bivariate analysis  -----------------------------------------------------
+
+  #Pearson and Spearman correlations
+
+cor.test(x = ESCA_Finalv3$Age, y = ESCA_Finalv3$Social_support, method = "pearson")
+cor.test(x = ESCA_Finalv3$Age, y = ESCA_Finalv3$Social_support, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$Age, y = ESCA_Finalv3$Mental_well_being, method = "pearson")
+cor.test(x = ESCA_Finalv3$Age, y = ESCA_Finalv3$Mental_well_being, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$Household_members, y = ESCA_Finalv3$Social_support, method = "pearson")
+cor.test(x = ESCA_Finalv3$Household_members, y = ESCA_Finalv3$Social_support, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$Household_members, y = ESCA_Finalv3$Mental_well_being, method = "pearson")
+cor.test(x = ESCA_Finalv3$Household_members, y = ESCA_Finalv3$Mental_well_being, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$CChronic_conditions, y = ESCA_Finalv3$Social_support, method = "pearson")
+cor.test(x = ESCA_Finalv3$CChronic_conditions, y = ESCA_Finalv3$Social_support, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$CChronic_conditions, y = ESCA_Finalv3$Mental_well_being, method = "pearson")
+cor.test(x = ESCA_Finalv3$CChronic_conditions, y = ESCA_Finalv3$Mental_well_being, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$Social_support, y = ESCA_Finalv3$Mental_well_being, method = "pearson")
+cor.test(x = ESCA_Finalv3$Social_support, y = ESCA_Finalv3$Mental_well_being, method = "spearman")
+
+cor.test(x = ESCA_Finalv3$Mental_well_being, y = ESCA_Finalv3$Social_support, method = "pearson")
+cor.test(x = ESCA_Finalv3$Mental_well_being, y = ESCA_Finalv3$Social_support, method = "spearman")
+
+
+# t.test and wilcoxon (outcome ~ covariate, data = data)
+
+t.test(Social_support ~ Gender, data = ESCA_Finalv3)
+wilcox.test(Social_support ~ Gender, data = ESCA_Finalv3)
+
+t.test(Mental_well_being ~ Gender, data = ESCA_Finalv3)
+wilcox.test(Mental_well_being ~ Gender, data = ESCA_Finalv3)
+
+t.test(Social_support ~ Education, data = ESCA_Finalv3)
+wilcox.test(Social_support ~ Education, data = ESCA_Finalv3)
+
+t.test(Mental_well_being ~ Education, data = ESCA_Finalv3)
+wilcox.test(Mental_well_being ~ Education, data = ESCA_Finalv3)
+
+t.test(Social_support ~ Economic_strain, data = ESCA_Finalv3)
+wilcox.test(Social_support ~ Economic_strain, data = ESCA_Finalv3)
+
+t.test(Mental_well_being ~ Economic_strain, data = ESCA_Finalv3)
+wilcox.test(Mental_well_being ~ Economic_strain, data = ESCA_Finalv3)
+
+t.test(Social_support ~ Nationality, data = ESCA_Finalv3)
+wilcox.test(Social_support ~ Nationality, data = ESCA_Finalv3)
+
+t.test(Mental_well_being ~ Nationality, data = ESCA_Finalv3)
+wilcox.test(Mental_well_being ~ Nationality, data = ESCA_Finalv3)
+
+#ANOVA $ kruskal wallis
+?aov
+  
+aov_result <- aov(Social_support ~ Limitation_daily_activities, 
+                  data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Social_support ~ Limitation_daily_activities, 
+             data = ESCA_Finalv3)
+
+summary(kruskal.test)
+
+
+aov_result <- aov(Mental_well_being ~ Limitation_daily_activities, 
+                  data = ESCA_Finalv3)
+summary(aov_result)
+
+tukey_result <- TukeyHSD(aov_result)
+print(tukey_result)
+plot(tukey_result)
+
+kruskal.test(Mental_well_being ~ Limitation_daily_activities, 
+             data = ESCA_Finalv3)
+
+---------------
+
+
+aov_result <- aov(Social_support ~ Employment,
+                  data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Social_support ~ Employment, 
+             data = ESCA_Finalv3)
+
+
+aov_result <- aov(Mental_well_being ~ Employment, 
+                  data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Mental_well_being ~ Employment, 
+             data = ESCA_Finalv3)
+
+tukey_result <- TukeyHSD(aov_result)
+print(tukey_result)
+plot(tukey_result)
+
+---------------------------
+aov_result <- aov(Social_support ~ avail_activities, 
+                  data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Social_support ~ avail_activities, 
+             data = ESCA_Finalv3)
+
+
+  aov_result <- aov(Mental_well_being ~ avail_activities, 
+                    data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Mental_well_being ~ avail_activities, 
+             data = ESCA_Finalv3)
+
+--------------------------------
+
+aov_result <- aov(Social_support ~ uptake,
+                  data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Social_support ~ uptake, 
+             data = ESCA_Finalv3)
+
+-----------
+  aov_result <- aov(Mental_well_being ~ uptake, 
+                    data = ESCA_Finalv3)
+summary(aov_result)
+
+kruskal.test(Mental_well_being ~ uptake, 
+             data = ESCA_Finalv3)
+
 
 
 # Multilevel Models Social_support -------------------------------------------------------
@@ -621,15 +755,29 @@ print(tukey_test4)
     #specificity (selecting outcome chronic conditions) -----------------
 
       
-      FinalM4a_CCmodel <- lmer(CChronic_conditions ~ avail_activities+
+      FinalM4a_CCmodel<- lmer(CChronic_conditions ~ avail_activities + Gender + CAge + Limitation_daily_activities + 
+                                CChronic_conditions + Education + Employment + CHousehold_members + 
+                                Economic_strain + Nationality +
+                                Interview_wave +(1 | Health_Sector), data = ESCA_Finalv3)
+      tab_model(FinalM4a_CCmodel)
+      
+      FinalM4b_CCmodel<- lmer(CChronic_conditions ~ uptake + Gender + CAge + Limitation_daily_activities + 
+                                CChronic_conditions + Education + Employment + CHousehold_members + 
+                                Economic_strain + Nationality +
+                                Interview_wave +(1 | Health_Sector), data = ESCA_Finalv3)
+      tab_model(FinalM4b_CCmodel)
+    
+      
+    #specificity assumption met
+      
+  
+      FinalM4a_CCmodel <- lmer(CChronic_conditions ~ uptake +
                                  Limitation_daily_activities +  
                                  CHousehold_members + Economic_strain + Nationality + 
-                                 Interview_wave + (1 + avail_activities | Health_Sector), data = ESCA_Finalv3)
+                                 Interview_wave + (1 + | Health_Sector), data = ESCA_Finalv3)
       
       tab_model(FinalM4a_CCmodel) #specificity assumption met
-      
-      
-
+    
     #Robust models to adjust outliers observed in QQ graphs -------------
 
       #M4a_SS
@@ -671,8 +819,13 @@ print(tukey_test4)
       AIC(FinalM4b_MWmodel_Rob)
       
 
-  # CLMM- Ordinal Logistic Mixed Model  -----------------------------------
+  # CLMM- Ordinal Logistic Mixed Model Social Support  -----------------------------------
 
+      library(ordinal)
+      library(knitr)
+      library(kableExtra)
+      
+    #OSSS3 social support total initiatives
       ESCA_Finalv4$SocialSupportCat <- cut(ESCA_Finalv4$Social_support, #Converting outcome measure to ordinal factor
                                            breaks = c(2, 8, 11, 14),
                                            labels = c("Poor", "Moderate", "Strong"),
@@ -680,7 +833,7 @@ print(tukey_test4)
                                            include.lowest = TRUE)
       
       ESCA_Finalv4$SocialSupportCat <- ordered(ESCA_Finalv4$SocialSupportCat)
-      
+      head(ESCA_Finalv4$SocialSupportCat)
       FinalM4a_SSmodel_R <- clmm(SocialSupportCat ~ avail_activities+             #Reproducing parsimonious model with social support as a 3-level factor using CLMM
                                    Limitation_daily_activities + CChronic_conditions + 
                                    CHousehold_members + Economic_strain + Nationality + 
@@ -688,9 +841,83 @@ print(tukey_test4)
       
       summary(FinalM4a_SSmodel_R)
       
-          #Resuls are consistent with that of MLR model
-          avail_activities1    OR  1.3267217 CI 1.0800349 1.6297533
-          avail_activities2    OR  1.6559386 CI 1.2493873 2.1947820
+      
+      coef_est <- summary(FinalM4a_SSmodel_R)$coefficients
+      odds_ratios <- exp(coef_est[, "Estimate"])
+      conf_int <- exp(confint(FinalM4a_SSmodel_R))
+      
+      # Data frame
+      results <- data.frame(
+        Coefficient = rownames(coef_est),
+        Estimate = coef_est[, "Estimate"],
+        Std.Error = coef_est[, "Std. Error"],
+        OddsRatio = odds_ratios,
+        CI_lower = conf_int[, 1],
+        CI_upper = conf_int[, 2]
+      )
+      print(results)
+
+      #Formatted table
+      kable(results, format = "html", digits = 3, 
+            col.names = c("Covariate", "Estimate", "Std. Error", "Odds Ratio", "CI Lower", "CI Upper")) %>%
+        kable_styling(full_width = F, position = "center", bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+      
+      
+      -----------------------------------------------------------------------------------
+      
+      #OSSS3 social support territorial reach
+      
+      FinalM4a_SSmodel_R2 <- clmm(SocialSupportCat ~ uptake +             #Reproducing parsimonious model with social support as a 3-level factor using CLMM
+                                   Limitation_daily_activities + CChronic_conditions + 
+                                   CHousehold_members + Economic_strain + Nationality + 
+                                   Interview_wave + (1 | Health_Sector), data = ESCA_Finalv4)
+      
+      summary(FinalM4a_SSmodel_R2)
+      
+    
+      coef_est <- summary(FinalM4a_SSmodel_R2)$coefficients
+      odds_ratios <- exp(coef_est[, "Estimate"])
+      conf_int <- exp(confint(FinalM4a_SSmodel_R2))
+      
+      # Output Data frame
+      results <- data.frame(
+        Coefficient = rownames(coef_est),
+        Estimate = coef_est[, "Estimate"],
+        Std.Error = coef_est[, "Std. Error"],
+        OddsRatio = odds_ratios,
+        CI_lower = conf_int[, 1],
+        CI_upper = conf_int[, 2]
+      )
+      print(results)
+      
+      #Formated table
+      kable(results, format = "html", digits = 3, 
+            col.names = c("Covariate", "Estimate", "Std. Error", "Odds Ratio", "CI Lower", "CI Upper")) %>%
+        kable_styling(full_width = F, position = "center", bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+      --------------------------------------------------
+        
+      #GLMM binomial SWEMBWS Mental well-being
+      
+      ESCA_Finalv4$MentalWellbeingCat <- cut(ESCA_Finalv4$Mental_well_being,
+                                             breaks = c(-Inf, 26, Inf), 
+                                             labels = c("Low MW", "Good MW"), 
+                                             right = FALSE, 
+                                             include.lowest = TRUE)
+      subset(ESCA_Finalv4, Mental_well_being == 25, select = c("Mental_well_being", "MentalWellbeingCat"))      
+      FinalOR_MWmodel <- glmer(MentalWellbeingCat ~ avail_activities + Gender +
+                                 CAge + Limitation_daily_activities + CChronic_conditions + 
+                                 Education + Economic_strain + 
+                                 Interview_wave + (1 | Health_Sector), data = ESCA_Finalv4,
+                               family = binomial)
+      tab_model(FinalOR_MWmodel)
+      
+      FinalOR_MWmodel <- glmer(MentalWellbeingCat ~ uptake + Gender +
+                                 CAge + Limitation_daily_activities + CChronic_conditions + 
+                                 Education + Economic_strain + 
+                                 Interview_wave + (1 | Health_Sector), data = ESCA_Finalv4,
+                               family = binomial)
+      tab_model(FinalOR_MWmodel)
+      
         
 #Removing COVID Years (2020-2021) ---------------------------------------
 
@@ -905,9 +1132,6 @@ print(tukey_test4)
       
       tab_model(FinalM4b_MWmodel_NA)
       AIC(FinalM4b_MWmodel_NA)
-
-      
-  
       
       
       
